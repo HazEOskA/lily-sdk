@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { LilyAuthenticationError } from '../src/errors/sdk-error';
+import { LilyApiError, LilyAuthenticationError } from '../src/errors/sdk-error';
 import { createFetchHttpClient } from '../src/http/fetch-http-client';
 import { LilySdk } from '../src/sdk';
 import { createMockHttpClient } from './helpers/mock-http-client';
@@ -119,5 +119,46 @@ describe('client behavior', () => {
         path: '/v1/system/health',
       }),
     ).rejects.toBeInstanceOf(LilyAuthenticationError);
+  });
+
+  it('surfaces LilyApiError after retry exhaustion', async () => {
+    const fetchSpy = vi.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ message: 'unavailable' }), {
+          status: 503,
+          headers: {
+            'content-type': 'application/json',
+          },
+        }),
+      ),
+    );
+
+    const httpClient = createFetchHttpClient({
+      baseUrl: new URL('https://api.lily.test/'),
+      timeoutMs: 2_000,
+      retry: {
+        retries: 2,
+        retryDelayMs: 0,
+        retryableStatusCodes: [503],
+      },
+      defaultHeaders: {},
+      userAgent: 'lily-sdk/test',
+      fetch: fetchSpy,
+    });
+
+    let caught: unknown;
+
+    try {
+      await httpClient.request({
+        method: 'GET',
+        path: '/v1/system/health',
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
+    expect(caught).toBeInstanceOf(LilyApiError);
+    expect(caught).toMatchObject({ statusCode: 503 });
   });
 });
