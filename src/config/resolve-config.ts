@@ -1,6 +1,7 @@
 import { VERSION } from '../version';
 import type { LilySdkConfig, ResolvedLilySdkConfig } from './types';
 import { LilyConfigError } from '../errors/sdk-error';
+import { SDK_VERSION } from '../version';
 import type { RetryPolicy } from '../http/types';
 import { version } from '../../package.json' with { type: 'json' };
 

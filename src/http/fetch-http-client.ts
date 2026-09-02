@@ -51,6 +51,12 @@ export function createFetchHttpClient(
           requestInit.body = body;
         }
 
+        const requestMetadata = {
+          method: request.method,
+          path: request.path,
+          url: url.toString(),
+        };
+
         try {
           const response = await config.fetch(url, requestInit);
 
