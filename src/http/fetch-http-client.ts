@@ -19,6 +19,15 @@ export function createFetchHttpClient(config: ResolvedLilySdkConfig): HttpClient
 
       for (;;) {
         const controller = new AbortController();
+        if (request.signal) {
+          if (request.signal.aborted) {
+            throw new LilyTransportError('Request cancelled by caller.', {
+              code: 'CANCELLED',
+              cause: request.signal.reason ?? new Error('Aborted'),
+            });
+          }
+          request.signal.addEventListener('abort', () => controller.abort(request.signal!.reason), { once: true });
+        }
         const timeout = setTimeout(() => {
           controller.abort();
         }, timeoutMs);
