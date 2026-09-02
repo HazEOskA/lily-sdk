@@ -24,6 +24,8 @@ export function resolveLilySdkConfig(
   const timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retry = Object.freeze(resolveRetryPolicy(config.retry));
   const fetchImpl = config.fetch ?? globalThis.fetch;
+  const resolvedApiKey = resolveCredential(config.apiKey, 'LILY_API_KEY');
+  const resolvedAuthToken = resolveCredential(config.authToken, 'LILY_AUTH_TOKEN');
 
   if (typeof fetchImpl !== 'function') {
     throw new LilyConfigError(
@@ -50,6 +52,13 @@ export function resolveLilySdkConfig(
     ...(apiKey ? { apiKey } : {}),
     ...(authToken ? { authToken } : {}),
   });
+}
+
+function resolveCredential(
+  explicit: string | undefined,
+  envName: string,
+): string | undefined {
+  return explicit ?? process.env[envName] ?? undefined;
 }
 
 function safeUrl(rawUrl: string): URL {

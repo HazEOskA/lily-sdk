@@ -1,14 +1,53 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { LilyConfigError } from '../src/errors/sdk-error';
 import { resolveLilySdkConfig } from '../src/config/resolve-config';
 import { SDK_VERSION } from '../src/version';
 
 describe('resolveLilySdkConfig', () => {
-  it('normalizes base url and defaults', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
+  it('uses explicit baseUrl over env', () => {
+    process.env.LILY_API_URL = 'https://env.example.com';
+    const config = resolveLilySdkConfig({ baseUrl: 'https://explicit.example.com' });
+    expect(config.baseUrl.toString()).toBe('https://explicit.example.com/');
+  });
+
+  it('falls back to LILY_API_URL when baseUrl is omitted', () => {
+    process.env.LILY_API_URL = 'https://env.example.com';
+    const config = resolveLilySdkConfig({});
+    expect(config.baseUrl.toString()).toBe('https://env.example.com/');
+  });
+
+  it('throws when neither baseUrl nor env is provided', () => {
+    delete process.env.LILY_API_URL;
+    expect(() => resolveLilySdkConfig({})).toThrow(LilyConfigError);
+  });
+
+  it('resolves apiKey and authToken from env when not explicit', () => {
+    process.env.LILY_API_URL = 'https://api.example.com';
+    process.env.LILY_API_KEY = 'env-key';
+    process.env.LILY_AUTH_TOKEN = 'env-token';
+    const config = resolveLilySdkConfig({});
+    expect(config.apiKey).toBe('env-key');
+    expect(config.authToken).toBe('env-token');
+  });
+
+  it('prefers explicit credentials over env', () => {
+    process.env.LILY_API_URL = 'https://api.example.com';
+    process.env.LILY_API_KEY = 'env-key';
+    process.env.LILY_AUTH_TOKEN = 'env-token';
     const config = resolveLilySdkConfig({
-      baseUrl: 'https://api.lily.test',
-      fetch: globalThis.fetch,
+      apiKey: 'explicit-key',
+      authToken: 'explicit-token',
     });
 
     expect(config.baseUrl.toString()).toBe('https://api.lily.test/');
