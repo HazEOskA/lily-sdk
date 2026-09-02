@@ -120,7 +120,7 @@ describe('client behavior', () => {
     expect(fetchSpy).toHaveBeenCalledOnce();
   });
 
-  it('maps authentication failures to a typed error', async () => {
+  it('maps authentication failures to a typed error with full payload', async () => {
     const httpClient = createFetchHttpClient({
       baseUrl: new URL('https://api.lily.test/'),
       timeoutMs: 2_000,
@@ -133,7 +133,7 @@ describe('client behavior', () => {
       userAgent: 'lily-sdk/test',
       fetch: vi.fn(() =>
         Promise.resolve(
-          new Response(JSON.stringify({ message: 'nope' }), {
+          new Response(JSON.stringify({ message: 'nope', code: 'INVALID_TOKEN' }), {
             status: 401,
             headers: {
               'content-type': 'application/json',
