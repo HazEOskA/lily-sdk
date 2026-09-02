@@ -17,6 +17,7 @@ export class LilySdk {
   public readonly payments: PaymentClient;
   public readonly identity: IdentityClient;
   public readonly system: SystemClient;
+  private readonly httpClient: HttpClient;
 
   public static create(config?: Partial<LilySdkConfig>, httpClient?: HttpClient): LilySdk {
     return new LilySdk(config, httpClient);
