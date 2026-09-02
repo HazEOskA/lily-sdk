@@ -209,3 +209,4 @@ async function sleep(ms: number): Promise<void> {
     setTimeout(resolve, ms);
   });
 }
+import { resolveAuthHeaders } from './auth-headers';
