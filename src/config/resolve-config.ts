@@ -1,3 +1,4 @@
+import { VERSION } from '../version';
 import type { LilySdkConfig, ResolvedLilySdkConfig } from './types';
 import { LilyConfigError } from '../errors/sdk-error';
 import type { RetryPolicy } from '../http/types';
