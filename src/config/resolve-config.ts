@@ -61,6 +61,13 @@ function resolveCredential(
   return explicit ?? process.env[envName] ?? undefined;
 }
 
+function resolveCredential(
+  explicit: string | undefined,
+  envName: string,
+): string | undefined {
+  return explicit ?? process.env[envName] ?? undefined;
+}
+
 function safeUrl(rawUrl: string): URL {
   try {
     return new URL(rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`);
