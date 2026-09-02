@@ -26,6 +26,7 @@ export class LilySdk {
   public constructor(config?: Partial<LilySdkConfig>, httpClient?: HttpClient) {
     this.config = resolveLilySdkConfig((config ?? {}));
     const resolvedHttpClient = httpClient ?? createFetchHttpClient(this.config);
+    this.httpClient = resolvedHttpClient;
 
     this.agents = new AgentClient(this.httpClient);
     this.wallets = new WalletClient(this.httpClient);
@@ -144,6 +145,25 @@ export class LilySdk {
     }
 
     return new LilySdk(merged);
+  }
+
+  /**
+   * Creates a new LilySdk instance with merged configuration.
+   * Useful for multi-tenant scenarios where credentials or baseUrl differ per tenant.
+   */
+  public withConfig(overrides: Partial<LilySdkConfig>): LilySdk {
+    const merged: LilySdkConfig = {
+      baseUrl: this.config.baseUrl.toString(),
+      ...(this.config.apiKey !== undefined && { apiKey: this.config.apiKey }),
+      ...(this.config.authToken !== undefined && { authToken: this.config.authToken }),
+      timeoutMs: this.config.timeoutMs,
+      retry: { ...this.config.retry },
+      defaultHeaders: { ...this.config.defaultHeaders },
+      userAgent: this.config.userAgent,
+      fetch: this.config.fetch,
+      ...overrides,
+    };
+    return new LilySdk(merged, this.httpClient);
   }
 }
 
