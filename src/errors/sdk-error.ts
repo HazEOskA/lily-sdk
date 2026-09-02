@@ -1,3 +1,9 @@
+export interface LilyRequestMetadata {
+  method: string;
+  path: string;
+  url: string;
+}
+
 export interface LilyErrorOptions {
   code?: string;
   statusCode?: number;
