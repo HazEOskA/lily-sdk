@@ -20,7 +20,7 @@ export function resolveLilySdkConfig(
 
   const baseUrl = safeUrl(rawBaseUrl);
   const timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const retry = resolveRetryPolicy(config.retry);
+  const retry = Object.freeze(resolveRetryPolicy(config.retry));
   const fetchImpl = config.fetch ?? globalThis.fetch;
 
   if (typeof fetchImpl !== 'function') {
