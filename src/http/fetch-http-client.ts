@@ -31,6 +31,7 @@ export function createFetchHttpClient(config: ResolvedLilySdkConfig): HttpClient
         const timeout = setTimeout(() => {
           controller.abort();
         }, timeoutMs);
+
         const body = serializeBody(request.body);
         const requestInit: RequestInit = {
           method: request.method,
@@ -49,6 +50,9 @@ export function createFetchHttpClient(config: ResolvedLilySdkConfig): HttpClient
 
           if (response.ok) {
             clearTimeout(timeout);
+            if (externalAbortHandler && request.signal) {
+              request.signal.removeEventListener('abort', externalAbortHandler);
+            }
             return {
               status: response.status,
               headers: response.headers,
@@ -67,6 +71,9 @@ export function createFetchHttpClient(config: ResolvedLilySdkConfig): HttpClient
 
          if (shouldRetry(response.status, attempt, config.retry.retries, request.method)) {
             clearTimeout(timeout);
+            if (externalAbortHandler && request.signal) {
+              request.signal.removeEventListener('abort', externalAbortHandler);
+            }
             attempt += 1;
             await sleep(config.retry.retryDelayMs * attempt);
             continue;
