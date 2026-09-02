@@ -201,7 +201,8 @@ function isRetryableTransportError(error: unknown, method: string): boolean {
   const isSafeOrIdempotent =
     method === 'GET' || method === 'PUT' || method === 'DELETE';
 
-  return isSafeOrIdempotent && error instanceof Error;
+function isRetryableTransportError(error: unknown, method: string): boolean {
+  return isRetryableMethod(method) && error instanceof Error;
 }
 
 async function sleep(ms: number): Promise<void> {
