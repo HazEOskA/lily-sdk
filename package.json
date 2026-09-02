@@ -73,7 +73,7 @@
     "prebuild": "bash scripts/generate-version.sh",
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "typecheck": "tsc --project tsconfig.json --noEmit && tsc --project tsconfig.examples.json --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
