@@ -18,7 +18,7 @@ export function resolveLilySdkConfig(
     throw new LilyConfigError('`baseUrl` is required.');
   }
 
-  const baseUrl = safeUrl(config.baseUrl);
+  const baseUrl = safeUrl(rawBaseUrl);
   const timeoutMs = config.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retry = resolveRetryPolicy(config.retry);
   const fetchImpl = config.fetch ?? globalThis.fetch;
@@ -33,7 +33,10 @@ export function resolveLilySdkConfig(
     throw new LilyConfigError('`timeoutMs` must be a positive number.');
   }
 
-  return {
+  const apiKey = config.apiKey ?? process.env.LILY_API_KEY;
+  const authToken = config.authToken ?? process.env.LILY_AUTH_TOKEN;
+
+  return Object.freeze({
     baseUrl,
     timeoutMs,
     retry,
@@ -42,9 +45,9 @@ export function resolveLilySdkConfig(
     }),
     userAgent: config.userAgent ?? DEFAULT_USER_AGENT,
     fetch: fetchImpl,
-    ...(config.apiKey ? { apiKey: config.apiKey } : {}),
-    ...(config.authToken ? { authToken: config.authToken } : {}),
-  };
+    ...(apiKey ? { apiKey } : {}),
+    ...(authToken ? { authToken } : {}),
+  });
 }
 
 function safeUrl(rawUrl: string): URL {
